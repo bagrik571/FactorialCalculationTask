@@ -13,6 +13,7 @@ public class WriteFile implements Runnable {
     private final BlockingQueue<Result> queue;
     private final File outputFile;
     private static final Logger logger = Logger.getLogger(WriteFile.class.getName());
+    private int lineCount = 0;
 
     public WriteFile(BlockingQueue<Result> queue, File outputFile) {
         this.queue = queue;
@@ -32,7 +33,7 @@ public class WriteFile implements Runnable {
             PriorityQueue<Result> sortedResults = new PriorityQueue<>();
             while (true) {
                 Result result = queue.take();
-                if (result.getValue() == Integer.MIN_VALUE) {
+                if (result.getIndex() == -1) {
                     break;
                 }
                 sortedResults.add(result);
@@ -41,7 +42,9 @@ public class WriteFile implements Runnable {
                 Result result = sortedResults.poll();
                 writer.write(result.getValue() + " = " + result.getFactorial());
                 writer.newLine();
+                lineCount++;
             }
+            logger.log(Level.INFO, "Total lines written: " + lineCount);
         } catch (IOException | InterruptedException e) {
             logger.log(Level.SEVERE, "Error writing to file", e);
         }

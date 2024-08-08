@@ -1,5 +1,7 @@
 package org.example.v2;
 
+import com.sun.jdi.IntegerType;
+
 import java.math.BigInteger;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -24,16 +26,32 @@ public class Calculate implements Runnable {
     public void run() {
         try {
             while (true) {
-                Result inputResult = inputQueue.take();
-                if (inputResult.getValue() == Integer.MIN_VALUE) {
-                    inputQueue.put(new Result(inputResult.getIndex(), Integer.MIN_VALUE, null)); // Re insert the termination signal for other threads
-                    break;
+//                Result inputResult = inputQueue.take();
+//                if (inputResult.getValue().equals(Integer.MIN_VALUE)) {
+//                    inputQueue.put(new Result(inputResult.getIndex(), Integer.MIN_VALUE, null)); // Re insert the termination signal for other threads
+//                    break;
+//                }
+                    Result inputResult = inputQueue.take();
+                    if (inputResult.getIndex() == -1) {
+                        inputQueue.put(new Result(inputResult.getIndex(), inputResult.getValue(), null)); // Re-insert the termination signal for other threads
+                        break;
+                    }
+                if(!inputResult.getValue().equals("not valid value")) {
+                    while (throttleCounter.getAndIncrement() >= 100) {
+                        Thread.sleep(10); // Throttle if over 100 calculations per second
+                    }
+                    Integer value;
+                    try {
+                        value = Integer.parseInt(inputResult.getValue());
+                    } catch (NumberFormatException e) {
+                        outputQueue.put(new Result(inputResult.getIndex(), "not valid value", null));
+                        continue;
+                    }
+                    BigInteger result = factorial.calculateFactorial(value);
+                    outputQueue.put(new Result(inputResult.getIndex(), inputResult.getValue(), result));
+                } else {
+                    outputQueue.put(new Result(inputResult.getIndex(), inputResult.getValue(), null));
                 }
-                while (throttleCounter.getAndIncrement() >= 100) {
-                    Thread.sleep(10); // Throttle if over 100 calculations per second
-                }
-                BigInteger result = factorial.calculateFactorial(inputResult.getValue());
-                outputQueue.put(new Result(inputResult.getIndex(), inputResult.getValue(), result));
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

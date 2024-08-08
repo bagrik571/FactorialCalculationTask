@@ -27,11 +27,13 @@ public class ReadFile implements Runnable {
                 line = line.trim();
                 if (!line.isEmpty() && line.matches("\\d+")) {
                     try {
-                        Integer value = Integer.parseInt(line);
-                        queue.put(new Result(index++, value, null));
+                        //Integer value = Integer.getInteger(line);
+                        queue.put(new Result(index++, line, null));
                     } catch (NumberFormatException e) {
                         logger.log(Level.WARNING, "Invalid number format: " + line);
                     }
+                }else{
+                    queue.put(new Result(index++, "not valid value", null));
                 }
             }
             logger.log(Level.INFO, "Queue size after reading file: " + queue.size());

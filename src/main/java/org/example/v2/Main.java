@@ -46,11 +46,11 @@ public class Main {
         readExecutor.shutdown();
         readExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         for (int i = 0; i < threadCount; i++) {
-            inputQueue.put(new Result(i, Integer.MIN_VALUE, null)); // Signal to stop computation threads
+            inputQueue.put(new Result(-1, "", null)); // Signal to stop computation threads
         }
         computeExecutor.shutdown();
         computeExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-        outputQueue.put(new Result(-1, Integer.MIN_VALUE, null)); // Signal to stop writing thread
+            outputQueue.put(new Result(-1, "", null)); // Signal to stop writing thread
         writeExecutor.shutdown();
         writeExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         throttler.shutdown();

@@ -4,10 +4,10 @@ import java.math.BigInteger;
 
 public class Result implements Comparable<Result> {
     private final Integer index;
-    private final Integer value;
+    private final String value;
     private final BigInteger factorial;
 
-    public Result(Integer index, Integer value, BigInteger factorial) {
+    public Result(Integer index, String value, BigInteger factorial) {
         this.index = index;
         this.value = value;
         this.factorial = factorial;
@@ -17,7 +17,7 @@ public class Result implements Comparable<Result> {
         return index;
     }
 
-    public Integer getValue() {
+    public String getValue() {
         return value;
     }
 
